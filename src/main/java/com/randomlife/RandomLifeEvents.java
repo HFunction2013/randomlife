@@ -65,7 +65,7 @@ public class RandomLifeEvents {
     }
 
     @SubscribeEvent
-    public void onPlayerRespawn(PlayerEvent.PlayerRespawnedEvent event) {
+    public void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player) || player.level().isClientSide) {
             return;
         }
@@ -74,7 +74,7 @@ public class RandomLifeEvents {
     }
 
     @SubscribeEvent
-    public void onLivingDamage(LivingDamageEvent.Post event) {
+    public void onLivingDamage(LivingDamageEvent event) {
         updateHealthText(event.getEntity());
     }
 

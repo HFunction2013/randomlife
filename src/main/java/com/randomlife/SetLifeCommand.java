@@ -15,7 +15,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Implements /randomlife:set_life <targets> <life>
@@ -47,7 +47,7 @@ public class SetLifeCommand {
     }
 
     private int setLife(CommandContext<CommandSourceStack> context,
-                        List<? extends Entity> targets,
+                        Collection<? extends Entity> targets,
                         String lifeArgument) throws CommandSyntaxException {
 
         int newMax;
