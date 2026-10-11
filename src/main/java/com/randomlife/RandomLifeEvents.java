@@ -110,18 +110,26 @@ public class RandomLifeEvents {
      * would show stale numbers).
      */
     public static void updateHealthText(LivingEntity living) {
-        if (living.level().isClientSide) {
-            return;
+        if (living.level().isClientSide) return;
+    
+        CompoundTag data = living.getPersistentData();
+        Component currentName = living.getCustomName();
+    
+        String currentNameStr = currentName != null ? currentName.getString() : "";
+        // String storedOriginal = data.getString(TAG_ORIGINAL_NAME);
+        
+        boolean isOurFormat = currentNameStr.matches("^.+ \\d+/\\d+$");
+        
+        if (!isOurFormat && !currentNameStr.isEmpty()) {
+            data.putString(TAG_ORIGINAL_NAME, currentNameStr);
+        } else if (currentNameStr.isEmpty()) {
+            data.putString(TAG_ORIGINAL_NAME, living.getName().getString());
         }
-        int current = (int) Math.ceil(living.getHealth());
+    
+        int cur = (int) Math.ceil(living.getHealth());
         int max = (int) Math.ceil(living.getMaxHealth());
-
-        String text = current + "/" + max;
-        String original = living.getPersistentData().getString(TAG_ORIGINAL_NAME);
-        if (!original.isEmpty()) {
-            text = original + " " + text;
-        }
-
+    
+        String text = data.getString(TAG_ORIGINAL_NAME) + " " + cur + "/" + max;
         living.setCustomName(Component.literal(text));
         living.setCustomNameVisible(true);
     }
