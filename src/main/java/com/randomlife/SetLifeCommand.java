@@ -70,6 +70,9 @@ public class SetLifeCommand {
                 continue;
             }
             AttributeInstance attribute = living.getAttributes().getInstance(RandomLifeMod.MAX_HEALTH.get());
+            if (attribute == null) {
+                continue;
+            }
             int current = (int) Math.ceil(living.getHealth());
             attribute.setBaseValue(newMax);
             // Keep the current health points; clamp to the new total.

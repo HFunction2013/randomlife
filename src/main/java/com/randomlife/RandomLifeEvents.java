@@ -85,11 +85,19 @@ public class RandomLifeEvents {
     }
 
     /**
-     * Applies a new max health (added on demand to the entity's attribute map)
-     * and heals the entity back to full.
+     * Applies a new max health and heals the entity back to full.
+     *
+     * <p>The attribute is registered on every living entity type via
+     * {@code EntityAttributeModificationEvent} (see RandomLifeMod), so
+     * {@code getInstance} is non-null in practice. The null guard is a
+     * defensive fallback for exotic entities whose attribute supplier was
+     * constructed before the event fired.
      */
     public static void applyHealth(LivingEntity living, int maxHealth) {
         AttributeInstance attribute = living.getAttributes().getInstance(RandomLifeMod.MAX_HEALTH.get());
+        if (attribute == null) {
+            return;
+        }
         attribute.setBaseValue(maxHealth);
         living.setHealth(maxHealth);
         updateHealthText(living);
