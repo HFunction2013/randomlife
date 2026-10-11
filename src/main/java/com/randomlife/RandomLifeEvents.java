@@ -5,7 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingHealEvent;
@@ -17,6 +17,10 @@ import java.util.Random;
 /**
  * Handles rolling random health for every creature and keeping the floating
  * health text above heads up to date.
+ *
+ * <p>Max health lives in the mod's own {@code randomlife:max_health} attribute
+ * (see {@link RandomLifeMod#MAX_HEALTH}) so values above vanilla's 1024 cap
+ * work. The attribute is added to the entity on join and synced to clients.
  */
 public class RandomLifeEvents {
 
@@ -41,9 +45,6 @@ public class RandomLifeEvents {
         }
         if (!(entity instanceof LivingEntity living)) {
             return;
-        }
-        if (living.getAttribute(Attributes.MAX_HEALTH) == null) {
-            return; // A few living entities have no health attribute at all.
         }
 
         CompoundTag data = living.getPersistentData();
@@ -83,15 +84,27 @@ public class RandomLifeEvents {
         updateHealthText(event.getEntity());
     }
 
-    /** Applies a new max health and heals the entity back to full. */
+    /**
+     * Applies a new max health (added on demand to the entity's attribute map)
+     * and heals the entity back to full.
+     */
     public static void applyHealth(LivingEntity living, int maxHealth) {
-        living.getAttribute(Attributes.MAX_HEALTH).setBaseValue(maxHealth);
+        AttributeInstance attribute = living.getAttributes().getInstance(RandomLifeMod.MAX_HEALTH.get());
+        attribute.setBaseValue(maxHealth);
         living.setHealth(maxHealth);
         updateHealthText(living);
     }
 
-    /** Re-renders the nametag as "current/max", prefixed with the original name when available. */
+    /**
+     * Re-renders the nametag as "current/max", prefixed with the original name
+     * when available. Only the server writes the nametag; the client must not
+     * overwrite it (its copy of the attribute may lag behind, and re-rolling it
+     * would show stale numbers).
+     */
     public static void updateHealthText(LivingEntity living) {
+        if (living.level().isClientSide) {
+            return;
+        }
         int current = (int) Math.ceil(living.getHealth());
         int max = (int) Math.ceil(living.getMaxHealth());
 

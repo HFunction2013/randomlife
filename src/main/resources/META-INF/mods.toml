@@ -24,3 +24,6 @@ ${mod_description}
     versionRange="[1.20.1]"
     ordering="NONE"
     side="BOTH"
+
+[[mixins]]
+    config="randomlife.mixins.json"

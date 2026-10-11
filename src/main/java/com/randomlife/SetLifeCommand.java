@@ -11,7 +11,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -66,12 +66,12 @@ public class SetLifeCommand {
 
         int count = 0;
         for (Entity entity : targets) {
-            if (!(entity instanceof LivingEntity living)
-                    || living.getAttribute(Attributes.MAX_HEALTH) == null) {
+            if (!(entity instanceof LivingEntity living)) {
                 continue;
             }
+            AttributeInstance attribute = living.getAttributes().getInstance(RandomLifeMod.MAX_HEALTH.get());
             int current = (int) Math.ceil(living.getHealth());
-            living.getAttribute(Attributes.MAX_HEALTH).setBaseValue(newMax);
+            attribute.setBaseValue(newMax);
             // Keep the current health points; clamp to the new total.
             living.setHealth(Math.min(current, newMax));
             RandomLifeEvents.updateHealthText(living);
